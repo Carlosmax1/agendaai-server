@@ -3,7 +3,8 @@ import { envs } from '@/env';
 
 const app = fastify({ logger: true });
 
-app.get('/', async (request, reply) => {
+app.get('/agenda', async (request, reply) => {
+  console.log(request.headers);
   return { hello: 'world' };
 });
 
