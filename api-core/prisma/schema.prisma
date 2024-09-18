@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  lastName  String
+  email     String   @unique
+  password  String
+  createdAt String
+  updatedAt String
+  Agenda    Agenda[]
+
+  @@map("users")
+}
+
+model Agenda {
+  id       String     @id @default(cuid())
+  name     String     @unique
+  color    String // hex color
+  icon     String // name of the icon
+  timeZone String // time zone of agenda
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  Reminder Reminder[]
+  Event    Event[]
+
+  @@map("agendas")
+}
+
+// lembrete
+model Reminder {
+  id           String  @id @default(cuid())
+  title        String
+  date         String
+  time         String
+  notification Boolean
+  address      String?
+  color        String?
+  public       Boolean
+  agenda       Agenda  @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  agendaId     String
+  createdAt    String
+  updatedAt    String
+
+  @@map("reminders")
+}
+
+// evento
+model Event {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  date        String
+  time        String
+  address     String?
+  color       String?
+  public      Boolean
+  agenda      Agenda  @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  agendaId    String
+  createdAt   String
+  updatedAt   String
+
+  @@map("events")
+}
