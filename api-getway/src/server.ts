@@ -32,14 +32,13 @@ app.route({
 */
 app.route({
   method: ['GET', 'POST', 'PUT', 'DELETE'],
-  url: '/agenda*',
+  url: '/api*',
   preHandler: async (request, reply, done) => {
     if (!request.cookies.auth_token) {
       return reply.code(401).send({ message: 'Unauthorized' });
     }
     const token = request.cookies.auth_token;
     try {
-      if (token === 'token') return done();
       jwt.verify(token, envs.JWT_SECRET);
       return done();
     } catch (error) {
@@ -51,8 +50,9 @@ app.route({
       'x-service': 'api-gateway',
       Authorization: `Bearer ${request.cookies.auth_token}`,
     };
-    return reply.from('http://localhost:3001' + request.raw.url, {
-      rewriteRequestHeaders: (originalReq, headers) => {
+
+    return reply.from('http://localhost:3001' + request.raw.url?.replace('/api', ''), {
+      rewriteRequestHeaders: (_, headers) => {
         // remove cookie header
         delete headers.cookie;
         return { ...headers, ...header };
