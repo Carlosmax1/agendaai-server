@@ -18,4 +18,5 @@ export interface LoginErrors {
 
 export type LoginRepository = {
   login: (login: Login) => Promise<LoginResponse | LoginErrors>;
+  logout: () => Promise<void>;
 };

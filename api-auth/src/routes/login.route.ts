@@ -33,4 +33,12 @@ export const loginRoutes = async (app: FastifyInstance) => {
       return reply.code(500).send({ error: 'internal_error', message: JSON.stringify(error) });
     }
   });
+
+  app.get('/logout', async (request, reply) => {
+    try {
+      return reply.clearCookie('auth_token').status(200).send({ message: 'logout' });
+    } catch (error) {
+      return reply.code(500).send({ error: 'internal_error', message: JSON.stringify(error) });
+    }
+  });
 };

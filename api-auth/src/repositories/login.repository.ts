@@ -30,4 +30,5 @@ export class LoginRepositoryPrisma implements LoginRepository {
       throw error;
     }
   }
+  async logout() {}
 }
