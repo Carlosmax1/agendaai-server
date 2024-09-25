@@ -1,8 +1,13 @@
+import { rabbitmqServer } from '@/rabbitmq/rabbit-client';
+
 export class MessageJob {
   async handle(data: { message: string; phone: string }) {
-    console.log('Message:', data.message);
-    console.log('Phone:', data.phone);
-
-    // Publica na fila de mensagens para enviar uma mensagem no WhatsApp do usuário e do cliente
+    const { message, phone } = data;
+    try {
+      // Envia a mensagem para a fila do RabbitMQ para o serviço de envio de mensagens no WhatsApp
+      await rabbitmqServer.publishInQueue('whatsapp', JSON.stringify({ message, phone }));
+    } catch (error) {
+      throw error;
+    }
   }
 }

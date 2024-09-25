@@ -2,6 +2,7 @@ import Queue, { Job } from 'bull';
 import { dayjs } from '@/lib/dayjs';
 import { jobs } from '@/jobs';
 import { envs } from '@/envs';
+import { RabbitmqServer } from '@/rabbitmq/rabbit-server';
 
 const queues = Object.values(jobs).map((job) => ({
   bull: new Queue(job.key, {
@@ -17,6 +18,24 @@ const queues = Object.values(jobs).map((job) => ({
   name: job.key,
   handle: (jobData: Job<any>) => job.handle(jobData.data),
 }));
+
+// Converte a data para o formato cron mensal
+function dateToMonthlyCronFormat(date: Date | string) {
+  const d = dayjs(date);
+  return `${d.minute()} ${d.hour()} ${d.date()} * *`;
+}
+
+// Converte a data para o formato cron semanal
+function dateToWeeklyCronFormat(date: Date | string) {
+  const d = dayjs(date);
+  return `${d.minute()} ${d.hour()} * * ${d.day()}`;
+}
+
+// Converte a data para o formato cron diário
+function dateToDailyCronFormat(date: Date | string) {
+  const d = dayjs(date);
+  return `${d.minute()} ${d.hour()} * * *`;
+}
 
 export const Queues = {
   queues,
@@ -40,6 +59,36 @@ export const Queues = {
     // Adiciona o job à fila com o atraso calculado
     return queue.bull.add(data, {
       delay: Math.max(delay, 0), // Garantir que o delay não seja negativo
+    });
+  },
+
+  addCron(name: string, data: Record<string, unknown>, date: Date | string, frequency: 'daily' | 'weekly' | 'monthly') {
+    const queue = this.queues.find((queue) => queue.name === name);
+
+    if (!queue) {
+      throw new Error(`Queue with name "${name}" not found`);
+    }
+
+    let cron = '';
+
+    switch (frequency) {
+      case 'daily':
+        cron = dateToDailyCronFormat(date);
+        break;
+      case 'weekly':
+        cron = dateToWeeklyCronFormat(date);
+        break;
+      case 'monthly':
+        cron = dateToMonthlyCronFormat(date);
+        break;
+      default:
+        throw new Error('Invalid frequency');
+    }
+
+    return queue.bull.add(data, {
+      repeat: {
+        cron,
+      },
     });
   },
 
