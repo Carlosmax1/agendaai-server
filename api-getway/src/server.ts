@@ -61,7 +61,7 @@ app.route({
   method: ['GET', 'POST'],
   url: '/auth*',
   handler: async (request, reply) => {
-    return reply.from('http://localhost:3001' + request.raw.url);
+    return reply.from('http://localhost:3002' + request.raw.url);
   },
 });
 

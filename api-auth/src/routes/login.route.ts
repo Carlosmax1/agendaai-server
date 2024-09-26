@@ -1,5 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import jwt from 'jsonwebtoken';
+import { envs } from '@/envs';
 
 import { LoginUseCase } from '@/usecases/login.usecase';
 
@@ -37,6 +39,16 @@ export const loginRoutes = async (app: FastifyInstance) => {
   app.get('/logout', async (request, reply) => {
     try {
       return reply.clearCookie('auth_token').status(200).send({ message: 'logout' });
+    } catch (error) {
+      return reply.code(500).send({ error: 'internal_error', message: JSON.stringify(error) });
+    }
+  });
+
+  app.get('/check', async (request, reply) => {
+    try {
+      const token = request.cookies.auth_token;
+      if (!token) return reply.code(401).send({ error: 'unauthorized' });
+      jwt.verify(token, envs.JWT_SECRET, (err, decoded) => {});
     } catch (error) {
       return reply.code(500).send({ error: 'internal_error', message: JSON.stringify(error) });
     }
