@@ -10,7 +10,7 @@ const loginSchema = z.object({
 
 export const loginRoutes = async (app: FastifyInstance) => {
   const loginUseCase = new LoginUseCase();
-  app.post<{ Body: z.infer<typeof loginSchema> }>('/login', { schema: { body: loginSchema } }, async (request, reply) => {
+  app.post<{ Body: z.infer<typeof loginSchema> }>('/login', async (request, reply) => {
     const loginBody = request.body;
     try {
       const login = loginSchema.parse(loginBody);

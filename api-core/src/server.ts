@@ -1,16 +1,11 @@
 import fastify from 'fastify';
+import { userRoutes } from '@/routes/user.routes';
 import { envs } from '@/env';
 
 const app = fastify({ logger: true });
 
-app.get('/agenda', async (request, reply) => {
-  console.log(request.headers);
-  return { hello: 'world' };
-});
-
-app.get('/lembretes', async (request, reply) => {
-  console.log(request.headers);
-  return { hello: 'world' };
+app.register(userRoutes, {
+  prefix: '/user',
 });
 
 app.listen({ port: envs.PORT, host: '0.0.0.0' }).then(() => {

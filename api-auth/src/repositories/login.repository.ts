@@ -7,7 +7,7 @@ import { dayjs } from '@/lib/dayjs';
 export class LoginRepositoryPrisma implements LoginRepository {
   async login(login: Login): Promise<LoginResponse | LoginErrors> {
     try {
-      const user = await db.user.findUnique({
+      const user = await db.users.findUnique({
         where: {
           email: login.email,
         },

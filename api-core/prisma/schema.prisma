@@ -7,65 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// criando uma agenda para barbearias e salões de beleza
 model User {
-  id        String   @id @default(uuid())
+  id        String     @id @default(cuid())
   name      String
-  lastName  String
-  email     String   @unique
+  email     String     @unique
+  phone     String
   password  String
-  createdAt String
-  updatedAt String
-  Agenda    Agenda[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Schedule  Schedule[] // a agenda do usuário
 
   @@map("users")
 }
 
-model Agenda {
-  id       String     @id @default(cuid())
-  name     String     @unique
-  color    String // hex color
-  icon     String // name of the icon
-  timeZone String // time zone of agenda
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String
-  Reminder Reminder[]
-  Event    Event[]
+model Barber {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  phone     String
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Schedule  Schedule[] // a agenda do barbeiro
+  Address   Address[]
 
-  @@map("agendas")
+  @@map("barbers")
 }
 
-// lembrete
-model Reminder {
-  id           String  @id @default(cuid())
-  title        String
-  date         String
-  time         String
-  notification Boolean
-  address      String?
-  color        String?
-  public       Boolean
-  agenda       Agenda  @relation(fields: [agendaId], references: [id], onDelete: Cascade)
-  agendaId     String
-  createdAt    String
-  updatedAt    String
+// serviços oferecidos pela barbearia
+model Service {
+  id        String     @id @default(cuid())
+  name      String
+  price     Float
+  duration  Int // duração do serviço em minutos
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Schedule  Schedule[]
 
-  @@map("reminders")
+  @@map("services")
 }
 
-// evento
-model Event {
-  id          String  @id @default(cuid())
-  title       String
-  description String
-  date        String
-  time        String
-  address     String?
-  color       String?
-  public      Boolean
-  agenda      Agenda  @relation(fields: [agendaId], references: [id], onDelete: Cascade)
-  agendaId    String
-  createdAt   String
-  updatedAt   String
+// enderço da barbearia
+model Address {
+  id        String   @id @default(cuid())
+  street    String
+  number    String
+  city      String
+  state     String
+  barber    Barber   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  barberId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("events")
+  @@map("addresses")
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  date      DateTime
+  color     String?
+  icon      String?
+  barber    Barber   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId    String
+  barberId  String
+  serviceId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("schedules")
 }
